@@ -98,3 +98,40 @@ The builder supports multi-project workspaces out of the box, the only thing req
    
 ## Migrating existing tests to Jest
 Use [this](https://jestjs.io/docs/en/migration-guide) for automatic migration of your Jasmine tests to Jest framework.
+
+## Troubleshooting
+
+Please find below a selection of potential issues you might face when using this builder. Refer to [jest-preset-angular Troubleshooting](https://github.com/thymikee/jest-preset-angular) for  `jest-preset-angular` specific issues.
+
+### Unexpected token [import|export|other]
+
+This means that the library you're using doesn't use `commonjs` module format (which `jest` expects to see). You will need to implement the recommendations mentioned in [jest-preset-angular Troubleshooting Guide](https://github.com/thymikee/jest-preset-angular#unexpected-token-importexportother).
+
+One of the recommendations might require you to [transpile js files through babel-jest](https://github.com/thymikee/jest-preset-angular#transpile-js-files-through-babel-jest).  
+In this case make sure you add `allowSyntheticDefaultImports` to the `ts-jest` configuration (see [here](https://github.com/7leads/ngx-cookie-service/issues/39) for an explanation of this setting).
+
+```js
+"ts-jest": {
+   ...
+  "allowSyntheticDefaultImports": true
+}
+```
+
+Your final `jest.config.js` file should look something like this:
+
+```js
+const esModules = ['[thir-party-lib]'].join('|');
+
+module.exports = {
+  globals: {
+    "ts-jest": {
+      "allowSyntheticDefaultImports": true
+    }
+  },
+  transformIgnorePatterns: [`<rootDir>/node_modules/(?!${esModules})`],
+
+  "transform": {
+    "^.+\\.js$": "babel-jest"
+  }
+};
+```
